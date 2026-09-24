@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Today's Plate</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f5f6f8; --surface: #ffffff; --surface-2: #eef0f3;
+  --ink: #14171a; --muted: #5e6570; --line: #e3e6ea;
+  --primary: #0e9f55; --primary-ink: #ffffff; --primary-soft: #e3f6ec;
+  --accent: #e8730c; --accent-soft: #fff1e3;
+  --shadow: 0 1px 2px rgba(20,23,26,.06), 0 4px 14px rgba(20,23,26,.05);
+  --font: "Figtree", "Segoe UI", system-ui, -apple-system, sans-serif;
+  color-scheme: light;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1215; --surface: #181c21; --surface-2: #22272e;
+    --ink: #eef1f4; --muted: #9aa3ae; --line: #2a3038;
+    --primary: #2fcb7a; --primary-ink: #06210f; --primary-soft: #15311f;
+    --accent: #ffa24d; --accent-soft: #33240f;
+    --shadow: 0 1px 2px rgba(0,0,0,.4);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1215; --surface: #181c21; --surface-2: #22272e;
+  --ink: #eef1f4; --muted: #9aa3ae; --line: #2a3038;
+  --primary: #2fcb7a; --primary-ink: #06210f; --primary-soft: #15311f;
+  --accent: #ffa24d; --accent-soft: #33240f;
+  --shadow: 0 1px 2px rgba(0,0,0,.4);
+  color-scheme: dark;
+}
+*, *::before, *::after { box-sizing: inherit; margin: 0; padding: 0; }
+html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+body { font-family: var(--font); background: var(--bg); color: var(--ink); line-height: 1.5; font-size: 16px; -webkit-font-smoothing: antialiased; min-height: 100vh; }
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; border: 0; background: none; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 10px; }
+.hidden { display: none !important; }
+
+/* App bar */
+.appbar {
+  position: sticky; top: 0; z-index: 10;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  padding-top: env(safe-area-inset-top, 0px);
+}
+.appbar-inner { max-width: 760px; margin: 0 auto; padding: 12px 18px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 19px; letter-spacing: -0.01em; }
+.brand-mark { width: 34px; height: 34px; border-radius: 50%; background: var(--primary); display: grid; place-items: center; font-size: 18px; box-shadow: inset 0 0 0 4px color-mix(in srgb, var(--primary-ink) 25%, transparent); }
+.bar-actions { display: flex; gap: 6px; }
+.icon-btn { height: 38px; min-width: 38px; padding: 0 10px; border-radius: 999px; background: var(--surface); border: 1px solid var(--line); display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-size: 14px; font-weight: 600; }
+.icon-btn:hover { background: var(--surface-2); }
+.icon-btn svg { width: 18px; height: 18px; }
+
+main { max-width: 760px; margin: 0 auto; padding: 8px 18px 120px; }
+
+/* Wizard */
+.progress { height: 6px; background: var(--surface-2); border-radius: 999px; overflow: hidden; margin: 6px 0 22px; }
+.progress span { display: block; height: 100%; background: var(--primary); border-radius: 999px; transition: width .35s ease; }
+.step-count { font-size: 14px; color: var(--muted); font-weight: 600; }
+.step h1 { font-size: clamp(26px, 6vw, 34px); line-height: 1.15; font-weight: 800; letter-spacing: -0.02em; margin-top: 4px; }
+.step .lead { color: var(--muted); margin-top: 8px; font-size: 16px; max-width: 52ch; }
+.step-body { margin-top: 22px; }
+.subhead { font-size: 15px; font-weight: 700; margin: 22px 0 10px; }
+
+.welcome { text-align: center; padding-top: 6vh; }
+.plate-hero { width: 180px; height: 180px; margin: 0 auto 26px; border-radius: 50%; background: var(--surface); box-shadow: var(--shadow), inset 0 0 0 14px var(--surface-2); display: grid; place-items: center; font-size: 76px; position: relative; }
+.plate-hero::after { content: ""; position: absolute; inset: -10px; border-radius: 50%; border: 2px dashed var(--line); }
+.welcome h1 { font-size: clamp(32px, 8vw, 46px); }
+.welcome .lead { margin: 12px auto 0; }
+.welcome .perks { list-style: none; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 22px; }
+.welcome .perks li { background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; font-size: 14px; font-weight: 600; }
+
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+.card-opt {
+  display: flex; align-items: center; gap: 14px; text-align: left;
+  background: var(--surface); border: 2px solid var(--line); border-radius: 16px;
+  padding: 14px; width: 100%; transition: border-color .15s, background-color .15s;
+}
+.card-opt:hover { border-color: color-mix(in srgb, var(--primary) 45%, var(--line)); }
+.card-opt[aria-pressed="true"] { border-color: var(--primary); background: var(--primary-soft); }
+.card-opt .emo { width: 46px; height: 46px; flex-shrink: 0; border-radius: 12px; background: var(--surface-2); display: grid; place-items: center; font-size: 24px; }
+.card-opt[aria-pressed="true"] .emo { background: var(--surface); }
+.card-opt .t { font-weight: 700; font-size: 16px; display: block; }
+.card-opt .s { color: var(--muted); font-size: 14px; display: block; line-height: 1.35; margin-top: 2px; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { border: 1.5px solid var(--line); background: var(--surface); border-radius: 999px; padding: 8px 14px; font-weight: 600; font-size: 15px; }
+.chip:hover { border-color: color-mix(in srgb, var(--primary) 45%, var(--line)); }
+.chip[aria-pressed="true"] { background: var(--primary); border-color: var(--primary); color: var(--primary-ink); }
+
+.toggle-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; margin-top: 14px; cursor: pointer; }
+.toggle-row .t { font-weight: 700; display: block; }
+.toggle-row .s { color: var(--muted); font-size: 14px; display: block; }
+.switch { position: relative; width: 48px; height: 28px; flex-shrink: 0; }
+.switch input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.switch .track { position: absolute; inset: 0; border-radius: 999px; background: var(--line); transition: background .2s; }
+.switch .track::after { content: ""; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.25); transition: transform .2s; }
+.switch input:checked + .track { background: var(--primary); }
+.switch input:checked + .track::after { transform: translateX(20px); }
+.switch input:focus-visible + .track { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+.stepper { display: flex; align-items: center; gap: 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 12px; width: fit-content; }
+.stepper button { width: 44px; height: 44px; border-radius: 12px; background: var(--surface-2); font-size: 22px; font-weight: 700; }
+.stepper button:disabled { opacity: .4; cursor: default; }
+.stepper output { min-width: 90px; text-align: center; font-size: 22px; font-weight: 800; }
+.stepper output small { display: block; font-size: 13px; color: var(--muted); font-weight: 600; }
+
+.input { width: 100%; background: var(--surface); border: 1.5px solid var(--line); border-radius: 12px; padding: 12px 14px; font-size: 16px; }
+.input:focus { border-color: var(--primary); outline: none; }
+.own-form { display: grid; gap: 12px; }
+.own-list { list-style: none; display: grid; gap: 8px; margin-top: 16px; }
+.own-list li { display: flex; align-items: center; gap: 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; }
+.own-list .emo { font-size: 22px; }
+.own-list .t { font-weight: 700; }
+.own-list .s { color: var(--muted); font-size: 13px; }
+.own-list .grow { flex: 1; }
+.link-btn { color: var(--accent); font-weight: 700; font-size: 14px; padding: 6px; }
+
+.bottom-bar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; background: var(--surface); border-top: 1px solid var(--line); padding: 12px 18px; padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px)); }
+.bottom-inner { max-width: 760px; margin: 0 auto; display: flex; gap: 10px; }
+.btn { border-radius: 14px; padding: 14px 20px; font-weight: 700; font-size: 16px; }
+.btn-primary { background: var(--primary); color: var(--primary-ink); flex: 1; }
+.btn-primary:hover { filter: brightness(1.06); }
+.btn-primary:disabled { opacity: .45; cursor: default; filter: none; }
+.btn-secondary { background: var(--surface-2); }
+.btn-secondary:hover { filter: brightness(0.97); }
+
+/* Plan */
+.plan-top { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+.plan-top h1 { font-size: clamp(26px, 6vw, 32px); font-weight: 800; letter-spacing: -0.02em; line-height: 1.15; }
+.plan-top p { color: var(--muted); font-size: 15px; }
+.pref-summary { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.pref-summary span { background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px; font-size: 13px; font-weight: 600; color: var(--muted); }
+
+.days { display: flex; gap: 8px; overflow-x: auto; padding: 16px 2px 10px; margin: 0 -2px; scrollbar-width: none; scroll-snap-type: x proximity; }
+.days::-webkit-scrollbar { display: none; }
+.day-pill { flex-shrink: 0; scroll-snap-align: start; width: 64px; padding: 10px 0; border-radius: 16px; background: var(--surface); border: 1.5px solid var(--line); text-align: center; position: relative; }
+.day-pill .dw { display: block; font-size: 13px; color: var(--muted); font-weight: 600; }
+.day-pill .dn { display: block; font-size: 20px; font-weight: 800; line-height: 1.2; }
+.day-pill .dot { position: absolute; top: 6px; right: 8px; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+.day-pill[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); }
+.day-pill[aria-pressed="true"] .dw, .day-pill[aria-pressed="true"] .dn { color: var(--bg); }
+
+.day-title { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 12px 0 12px; }
+.day-title h2 { font-size: 20px; font-weight: 800; }
+.badge { background: var(--accent-soft); color: var(--accent); font-weight: 700; font-size: 13px; border-radius: 999px; padding: 3px 10px; }
+
+.meal-list { display: grid; gap: 12px; }
+.meal { display: flex; gap: 14px; background: var(--surface); border-radius: 20px; padding: 14px; box-shadow: var(--shadow); border: 1px solid var(--line); transition: background-color .5s ease; align-items: flex-start; }
+.meal.flash { background: var(--primary-soft); }
+.meal .plate { width: 72px; height: 72px; flex-shrink: 0; border-radius: 50%; display: grid; place-items: center; font-size: 34px; background: var(--surface-2); box-shadow: inset 0 0 0 6px var(--surface); outline: 1px solid var(--line); }
+.meal[data-slot="breakfast"] .plate, .meal[data-slot="suhoor"] .plate { background: var(--accent-soft); }
+.meal[data-slot="lunch"] .plate, .meal[data-slot="iftar"] .plate { background: var(--primary-soft); }
+.meal .info { flex: 1; min-width: 0; }
+.meal .slot { font-size: 13px; font-weight: 700; color: var(--primary); }
+.meal[data-slot="breakfast"] .slot, .meal[data-slot="suhoor"] .slot { color: var(--accent); }
+.meal .name { font-size: 18px; font-weight: 800; line-height: 1.25; margin-top: 1px; }
+.meal .origin { font-size: 14px; color: var(--muted); }
+.meal .why { font-size: 14.5px; margin-top: 6px; }
+.meal .pre { font-size: 13px; color: var(--muted); font-weight: 600; }
+.tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+.tag { font-size: 12px; font-weight: 700; background: var(--surface-2); color: var(--muted); border-radius: 999px; padding: 2px 9px; }
+.tag.own { background: var(--accent-soft); color: var(--accent); }
+.swap { flex-shrink: 0; width: 40px; height: 40px; border-radius: 12px; background: var(--surface-2); display: grid; place-items: center; }
+.swap:hover { background: var(--primary-soft); color: var(--primary); }
+.swap svg { width: 18px; height: 18px; }
+.meal.empty .name { font-size: 16px; }
+
+.tips { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; margin-top: 22px; }
+.tips summary { list-style: none; cursor: pointer; padding: 14px 16px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.tips summary::-webkit-details-marker { display: none; }
+.tips summary::after { content: "+"; font-size: 22px; color: var(--muted); line-height: 1; }
+.tips[open] summary::after { content: "−"; }
+.tips ul { padding: 0 16px 16px 34px; display: grid; gap: 6px; font-size: 15px; }
+.fine { color: var(--muted); font-size: 13px; margin-top: 18px; text-align: center; }
+
+.print-all { display: none; }
+
+@media (prefers-reduced-motion: reduce) { .progress span, .meal, .switch .track, .switch .track::after { transition: none; } }
+
+@media print {
+  body { background: #fff; color: #000; }
+  .appbar, main, .bottom-bar { display: none !important; }
+  .print-all { display: block; padding: 0 8px; font-family: var(--font); }
+  .print-all h1 { font-size: 22px; margin-bottom: 4px; }
+  .print-all table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 12px; }
+  .print-all th, .print-all td { border: 1px solid #999; padding: 6px; text-align: left; vertical-align: top; }
+  .print-all tr { break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+
+<header class="appbar">
+  <div class="appbar-inner">
+    <div class="brand"><span class="brand-mark" aria-hidden="true">🍲</span>Today's Plate</div>
+    <div class="bar-actions">
+      <button type="button" class="icon-btn hidden" id="editBtn">Edit preferences</button>
+      <button type="button" class="icon-btn" id="themeBtn" aria-label="Theme: system"></button>
+    </div>
+  </div>
+</header>
+
+<main id="app"></main>
+<div class="bottom-bar" id="bottomBar"><div class="bottom-inner" id="bottomInner"></div></div>
+<div class="print-all" id="printAll"></div>
+
+<script>
+(function () {
+  "use strict";
+
+  // [name, where, cultures, region, meals (b l d s), flags, why it's good]
+  // flags: vg vegan, v vegetarian, hp high protein, gi blood-sugar friendly, lt light, sp soup, pk pork, sf shellfish, tr treat
+  var RAW = [
+    ["Akara and pap (ogi)","Nigeria","yo","W","b","vg hp","Bean fritters give plant protein and fibre; fermented corn pap is gentle on the stomach."],
+    ["Moi moi with pap","Nigeria","yo ig","W","bl","v hp gi","Steamed bean pudding: rich in protein and fibre with little oil."],
+    ["Yam and egg sauce","Nigeria","yo ig","W","b","v hp","Yam gives lasting energy; eggs and tomatoes add protein and vitamin C."],
+    ["Fried plantain (dodo) and eggs","Nigeria","yo ig","W","b","v","Ripe plantain supplies potassium and vitamin A."],
+    ["Beans porridge with plantain","Nigeria","yo ig ha","W","bld","vg hp gi","Beans release energy slowly and keep you full for hours."],
+    ["Unripe plantain porridge","Nigeria","yo ig","W","ld","gi lt","Unripe plantain is high in resistant starch, which is kind to blood sugar."],
+    ["Jollof rice with chicken","Nigeria, Ghana","yo ig ha gh","W","ld","","A party favourite; add a side of vegetables to balance the plate."],
+    ["Efo riro with pounded yam","Nigeria","yo","W","ld","","The leafy greens in efo riro are rich in iron and folate."],
+    ["Egusi soup with eba","Nigeria","yo ig ha","W","ld","hp","Melon seeds add healthy fats and protein; the greens add minerals."],
+    ["Ofe onugbu (bitterleaf soup) with fufu","Nigeria","ig","W","ld","sp","Bitterleaf is valued for its antioxidants."],
+    ["Oha soup with fufu","Nigeria","ig","W","ld","sp","Oha leaves bring vitamins and a fresh, light flavour."],
+    ["Ofe nsala (white soup) with pounded yam","Nigeria","ig","W","ld","sp hp","A light, pepper-warm soup usually made with catfish."],
+    ["Okpa","Nigeria","ig","W","bs","vg hp gi","Bambara nut pudding: high in protein and slow to digest."],
+    ["Abacha (African salad)","Nigeria","ig","W","ls","","Cassava shreds with garden egg leaves and fish: a satisfying light meal."],
+    ["Ofada rice with ayamase","Nigeria","yo","W","ld","","Unpolished local rice keeps more fibre than white rice."],
+    ["Amala with gbegiri and ewedu","Nigeria","yo","W","ld","hp","Bean soup and jute leaves pair protein with fibre."],
+    ["Tuwo shinkafa with miyan kuka","Nigeria","ha","W","ld","sp","Baobab leaf soup is rich in calcium and vitamin C."],
+    ["Masa with miyan taushe","Nigeria","ha","W","bl","","Fermented rice cakes with a pumpkin-and-spinach soup."],
+    ["Kosai and koko","Nigeria","ha","W","b","vg hp","Bean fritters with spiced millet porridge: a warm, filling start."],
+    ["Fonio (acha) jollof","Nigeria","ha","W","ld","vg gi","Fonio is gluten-free and gentler on blood sugar than white rice."],
+    ["Suya with onions and cucumber","Nigeria","ha","W","ds","hp lt gi","Grilled beef with peanut spice; the raw vegetables add crunch and fibre."],
+    ["Fish pepper soup","Nigeria","yo ig ha","W","ld","hp lt gi sp","Light and warming; fish provides lean protein and omega-3s."],
+    ["Goat meat pepper soup","Nigeria","yo ig ha","W","d","hp gi sp","Spices like uda and uziza give warmth, with very little starch."],
+    ["Boiled sweet potato with garden egg sauce","Nigeria","yo ig","W","b","v gi","Sweet potato brings vitamin A; garden eggs add fibre."],
+    ["Roasted plantain (boli) and groundnuts","Nigeria","yo","W","s","vg","Roasted rather than fried, with peanuts for protein."],
+    ["Roasted corn and coconut","Nigeria","yo ig","W","s","vg","A seasonal street snack with fibre and healthy fats."],
+    ["Zobo (hibiscus drink, no added sugar)","Nigeria","ha yo ig","W","s","vg lt","Hibiscus is rich in antioxidants; skip the added sugar."],
+    ["Kunun aya (tiger nut drink)","Nigeria","ha","W","s","vg","Tiger nuts provide fibre and healthy fats."],
+    ["Puff-puff","Nigeria","yo ig","W","s","v tr","A treat best kept occasional: it's deep-fried dough."],
+    ["Waakye with stew and egg","Ghana","gh ha","W","bl","v hp","Rice cooked with beans gives more protein and fibre than rice alone."],
+    ["Red red with plantain","Ghana","gh","W","ld","vg hp gi","Black-eyed bean stew is filling and rich in plant protein."],
+    ["Kenkey with fried fish and shito","Ghana","gh","W","ld","hp","Fermented corn dough is good for the gut; fish brings protein."],
+    ["Banku with okro stew","Ghana","gh","W","ld","sp","Okro is high in soluble fibre."],
+    ["Fufu with light soup","Ghana","gh","W","ld","sp","A tomato-based soup that's lighter than most stews."],
+    ["Hausa koko with koose","Ghana","gh ha","W","b","vg hp","Spiced millet porridge with bean fritters."],
+    ["Ampesi with kontomire stew","Ghana","gh","W","ld","v gi","Boiled yam or plantain with cocoyam leaves: iron-rich and not fried."],
+    ["Kelewele","Ghana","gh","W","s","vg tr","Spiced fried plantain with ginger and pepper."],
+    ["Attiéké with grilled fish","Côte d'Ivoire","gh","W","ld","hp lt","Fermented cassava couscous with grilled, not fried, fish."],
+    ["Thiéboudienne","Senegal","wo","W","ld","hp","Senegal's national dish of fish, rice and vegetables."],
+    ["Chicken yassa","Senegal","wo","W","ld","hp","Onions and lemon make a flavourful sauce without heavy oil."],
+    ["Mafé (peanut stew)","Senegal, Mali","wo","W","ld","hp","Groundnuts provide protein and healthy fats."],
+    ["Thiakry","Senegal","wo","W","bs","v","Millet couscous with yoghurt: probiotic and filling."],
+    ["Domoda","The Gambia","wo","W","ld","hp","Gambian groundnut stew with pumpkin and greens."],
+
+    ["Ndolé with plantain","Cameroon","ca","C","ld","hp sf","Bitterleaf and peanuts, often cooked with shrimp."],
+    ["Poulet DG","Cameroon","ca","C","d","hp","Chicken with plantain and vegetables: a celebration meal."],
+    ["Beignets, beans and pap","Cameroon","ca","C","b","v hp","Puff-puff with beans and pap: a classic street breakfast."],
+    ["Eru with water fufu","Cameroon","ca","C","ld","","Eru leaves are rich in fibre and minerals."],
+    ["Moambe chicken with rice","DR Congo","co","C","ld","hp","Palm butter sauce, rich in vitamin A."],
+    ["Pondu (cassava leaves) with fish","DR Congo","co","C","ld","gi","Cassava leaves are packed with vitamins and minerals."],
+    ["Fumbwa","DR Congo","co","C","ld","vg","Wild spinach cooked in peanut sauce."],
+    ["Liboke of fish","Congo","co","C","d","hp lt gi","Fish steamed in banana leaves, with no frying needed."],
+
+    ["Ugali with sukuma wiki","Kenya","ke sw","E","ld","vg","Collard greens bring calcium and vitamin K."],
+    ["Nyama choma with kachumbari","Kenya, Tanzania","ke sw","E","d","hp gi","Grilled meat with a fresh tomato and onion salad."],
+    ["Githeri","Kenya","ke","E","ld","vg hp gi","Maize and beans together: slow energy and good protein."],
+    ["Mandazi and chai","Kenya, Tanzania","sw ke","E","bs","v tr","Lightly sweet fried dough with spiced tea."],
+    ["Chapati with ndengu","Kenya","ke sw","E","ld","vg hp gi","Green grams (mung beans) are high in protein and fibre."],
+    ["Pilau with kachumbari","Tanzania, Kenya","sw","E","ld","","Spiced rice from the Swahili coast."],
+    ["Matoke","Uganda","ke","E","ld","vg gi","Green bananas are high in resistant starch and potassium."],
+    ["Rolex (chapati egg roll)","Uganda","ke","E","bs","v hp","Eggs and vegetables rolled in chapati."],
+    ["Uji (fermented millet porridge)","Kenya, Tanzania","ke sw","E","b","vg gi","Fermented millet is easy to digest and gives steady energy."],
+    ["Ugali with samaki (fish)","Kenya","ke sw","E","ld","hp","Lake tilapia is lean protein."],
+    ["Injera with shiro","Ethiopia, Eritrea","et","E","ld","vg hp","Chickpea stew with teff flatbread: iron-rich and fasting-friendly."],
+    ["Misir wat with injera","Ethiopia, Eritrea","et","E","ld","vg hp gi","Red lentils bring protein and fibre."],
+    ["Doro wat with injera","Ethiopia","et","E","d","hp","Spiced chicken stew with egg: a festive dish."],
+    ["Beyaynetu (fasting platter)","Ethiopia","et","E","ld","vg hp","A mix of lentils, greens and vegetables on injera."],
+    ["Chechebsa","Ethiopia","et","E","b","v","Flatbread tossed in spiced butter and berbere."],
+    ["Sambusa","Ethiopia, Somalia","et sw","E","s","hp","Lentil or meat pastries; bake them for a lighter version."],
+
+    ["Ful medames","Egypt, Sudan","eg et","N","b","vg hp gi","Fava beans with olive oil and cumin: slow-release energy."],
+    ["Shakshuka","Tunisia","ma","N","bl","v hp gi lt","Eggs poached in tomato and pepper: high in protein, low in starch."],
+    ["Couscous with seven vegetables","Morocco","ma","N","ld","v","Plenty of vegetables; add chickpeas for protein."],
+    ["Chicken tagine with preserved lemon","Morocco","ma","N","d","hp","Slow-cooked chicken with olives and little added fat."],
+    ["Harira","Morocco","ma","N","ld","hp sp","Lentil, chickpea and tomato soup, traditionally eaten to break the fast."],
+    ["Msemen with honey and mint tea","Morocco","ma","N","b","v tr","Flaky flatbread for a relaxed breakfast."],
+    ["Koshari","Egypt","eg","N","ld","vg hp","Lentils, rice, pasta and chickpeas in spiced tomato sauce."],
+    ["Egyptian lentil soup (shorbat ads)","Egypt","eg","N","ld","vg hp gi lt sp","Light and warming; red lentils bring protein and iron."],
+    ["Molokhia with rice and chicken","Egypt","eg","N","d","sp","Jute leaves, the same plant as ewedu, are rich in vitamins."],
+    ["Brik","Tunisia","ma","N","s","hp","Crisp pastry with egg and tuna."],
+    ["Dates and milk","North Africa","ma eg","N","s","v","Dates give quick natural energy: a traditional fast-breaker."],
+    ["Grilled sardines with salad","Morocco","ma","N","d","hp lt gi","Oily fish is rich in omega-3s."],
+
+    ["Pap and chakalaka","South Africa","za","S","ld","vg","A spicy bean and vegetable relish with maize porridge."],
+    ["Bobotie","South Africa","za","S","d","hp","Cape Malay spiced mince baked with an egg topping."],
+    ["Umngqusho (samp and beans)","South Africa","za","S","ld","vg hp gi","Filling and high in fibre."],
+    ["Boerewors with pap and salad","South Africa","za","S","d","pk hp","Farmer's sausage, usually a beef and pork mix."],
+    ["Bunny chow","South Africa","za","S","l","","Durban curry served in a hollowed-out loaf."],
+    ["Sorghum porridge (mabele)","Botswana, South Africa","za","S","b","vg gi","Sorghum is gluten-free and releases energy slowly."],
+    ["Rooibos tea and rusks","South Africa","za","S","s","v","Caffeine-free tea with a crunchy snack."],
+    ["Sadza with muriwo","Zimbabwe","zs","S","ld","vg","Greens cooked with tomato and onion alongside maize meal."],
+    ["Nshima with ifisashi","Zambia, Malawi","zs","S","ld","vg hp","Greens in peanut sauce: protein plus minerals."],
+    ["Kapenta with nshima","Zambia","zs","S","ld","hp","Small dried fish eaten whole: rich in calcium."],
+    ["Matapa with rice","Mozambique","mz","S","ld","sf","Cassava leaves in peanut and coconut, often with shrimp."],
+    ["Peri-peri chicken with salad","Mozambique","mz","S","d","hp lt gi","Grilled chicken in a chilli and lemon marinade."],
+    ["Grilled fish with coconut rice","Mozambique","mz","S","ld","hp","Coastal coconut rice with the day's grilled catch."],
+
+    ["Seasonal fresh fruit","Across Africa","","*","s","vg lt","Pawpaw, mango, oranges or watermelon: vitamins and water."],
+    ["Boiled groundnuts","Across Africa","","*","s","vg hp gi","Protein and healthy fats to keep you going."],
+    ["Boiled eggs","Across Africa","","*","s","v hp gi lt","A quick, portable protein snack."]
+  ];
+
+  var REGIONS = [
+    ["W", "West Africa", "Nigeria, Ghana, Senegal, Côte d'Ivoire and more", "🌴"],
+    ["C", "Central Africa", "Cameroon, DR Congo, Congo", "🌳"],
+    ["E", "East Africa", "Kenya, Ethiopia, Uganda, Tanzania", "⛰️"],
+    ["N", "North Africa", "Morocco, Egypt, Tunisia, Sudan", "🏜️"],
+    ["S", "Southern Africa", "South Africa, Zambia, Zimbabwe, Mozambique", "🌅"],
+    ["all", "All of Africa", "A mix from every region", "🌍"]
+  ];
+  var CULTURES = {
+    W: [["yo","Yoruba"],["ig","Igbo"],["ha","Hausa and Fulani"],["gh","Akan, Ga and Ewe"],["wo","Wolof and Senegambian"]],
+    C: [["ca","Cameroonian"],["co","Congolese"]],
+    E: [["et","Ethiopian and Eritrean"],["sw","Swahili coast"],["ke","Kikuyu, Luo, Baganda and neighbours"]],
+    N: [["ma","Moroccan, Algerian and Tunisian"],["eg","Egyptian and Sudanese"]],
+    S: [["za","Zulu, Xhosa, Sotho and Tswana"],["zs","Shona, Bemba and Chewa"],["mz","Mozambican"]]
+  };
+  var FAITHS = [
+    ["none", "No food rules", "Everything is on the table", "🍽️"],
+    ["muslim", "Muslim", "Halal, with an optional Ramadan mode", "🌙"],
+    ["christian", "Christian", "Optional fasting days", "✝️"],
+    ["hindu", "Hindu", "Vegetarian meals", "🪔"],
+    ["jewish", "Jewish", "No pork or shellfish", "✡️"]
+  ];
+  var FASTS = [["none", "No fasting"], ["fri", "Meat-free Fridays"], ["orthodox", "Vegan Wed & Fri"], ["lent", "Lent (no meat)"]];
+  var STYLES = [
+    ["all", "I eat everything", "Meat, fish, eggs and dairy", "🍗"],
+    ["veg", "Vegetarian", "No meat or fish", "🥚"],
+    ["vegan", "Vegan", "Plants only", "🥬"]
+  ];
+  var GOALS = [
+    ["none", "No diet goal", "Just plan my meals", "😋"],
+    ["loss", "Lose weight", "Lighter meals, less fried food", "⚖️"],
+    ["sugar", "Steady blood sugar", "Slow-release foods, fewer sweets", "🩺"],
+    ["protein", "More protein", "Beans, fish, eggs and meat", "💪"]
+  ];
+  var MEALS = [["breakfast", "Breakfast"], ["lunch", "Lunch"], ["dinner", "Dinner"], ["snack", "Snack"]];
+  var SLOT_LABEL = { breakfast: "Breakfast", lunch: "Lunch", dinner: "Dinner", snack: "Snack", suhoor: "Suhoor", iftar: "Iftar" };
+  var SLOT_CODE = { b: "Breakfast", l: "Lunch", d: "Dinner", s: "Snack" };
+  var TAG_LABEL = { vg: "Vegan", v: "Vegetarian", hp: "High protein", gi: "Blood-sugar friendly", lt: "Light" };
+
+  var EMOJI_RULES = [
+    [/zobo|kunun/, "🥤"], [/tea|chai/, "🍵"], [/fruit/, "🍉"], [/boiled groundnuts/, "🥜"], [/boiled eggs/, "🥚"], [/dates/, "🌴"],
+    [/soup|harira|shorbat|ofe |oha|miyan|molokhia|okro/, "🍲"], [/jollof|pilau/, "🍚"],
+    [/fish|sardine|samaki|kapenta|thiéboudienne|liboke|attiéké/, "🐟"],
+    [/chicken|doro|poulet/, "🍗"], [/suya|nyama|boerewors|bobotie/, "🍖"],
+    [/bean|akara|moi moi|red red|githeri|kosai|ful |lentil|misir|shiro|ndengu|okpa|umngqusho|chakalaka|beignet|beyaynetu/, "🫘"],
+    [/rice|waakye|koshari|tuwo/, "🍚"],
+    [/pap|porridge|uji|koko|mabele|thiakry/, "🥣"],
+    [/plantain|dodo|kelewele|boli|matoke/, "🍌"], [/yam|potato|ampesi/, "🍠"], [/corn/, "🌽"],
+    [/chapati|injera|msemen|chechebsa|rolex|mandazi|puff|brik|sambusa|masa|rusks/, "🫓"],
+    [/salad|abacha/, "🥗"], [/shakshuka|egg/, "🍳"]
+  ];
+  function emojiFor(name) {
+    var n = name.toLowerCase() + " ";
+    for (var i = 0; i < EMOJI_RULES.length; i++) if (EMOJI_RULES[i][0].test(n)) return EMOJI_RULES[i][1];
+    return "🥘";
+  }
+
+  function slug(s) { return s.toLowerCase().replace(/[^a-z0-9]+/g, "-"); }
+  var DISHES = RAW.map(function (a) {
+    var f = {};
+    (a[5] ? a[5].split(" ") : []).forEach(function (k) { f[k] = true; });
+    if (f.vg) f.v = true;
+    return { id: slug(a[0]), n: a[0], c: a[1], cu: a[2] ? a[2].split(" ") : [], r: a[3], m: a[4], f: f, b: a[6], e: emojiFor(a[0]) };
+  });
+
+  // ---------- storage ----------
+  var KEY = "todaysplate-v3";
+  function load() { try { var v = localStorage.getItem(KEY); return v ? JSON.parse(v) : null; } catch (e) { return null; } }
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+
+  function todayISO() { var d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 10); }
+  function defaults() {
+    return { region: null, culture: "", mix: false, religion: "none", ramadan: false, fasting: "none", style: "all", goal: "none", days: 7, start: todayISO(), meals: ["breakfast", "lunch", "dinner"] };
+  }
+
+  var state = { theme: "system", settings: null, own: [], plan: null, view: "wizard", step: 0, day: 0 };
+  var draft = defaults();
+
+  // ---------- theme ----------
+  var ICONS = {
+    system: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>',
+    light: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>',
+    dark: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>'
+  };
+  var THEME_NAME = { system: "Auto", light: "Light", dark: "Dark" };
+  function applyTheme() {
+    var t = state.theme;
+    if (t === "system") document.documentElement.removeAttribute("data-theme");
+    else document.documentElement.setAttribute("data-theme", t);
+    var b = document.getElementById("themeBtn");
+    b.innerHTML = ICONS[t] + "<span>" + THEME_NAME[t] + "</span>";
+    b.setAttribute("aria-label", "Theme: " + THEME_NAME[t] + ". Select to change.");
+  }
+  document.getElementById("themeBtn").addEventListener("click", function () {
+    state.theme = state.theme === "system" ? "light" : state.theme === "light" ? "dark" : "system";
+    applyTheme(); save();
+  });
+
+  // ---------- dom helpers ----------
+  function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+  function cardOption(o, selected, onPick) {
+    var b = el("button", "card-opt"); b.type = "button";
+    b.setAttribute("aria-pressed", selected ? "true" : "false");
+    b.appendChild(el("span", "emo", o[3]));
+    var txt = el("span"); txt.appendChild(el("span", "t", o[1])); if (o[2]) txt.appendChild(el("span", "s", o[2]));
+    b.appendChild(txt);
+    b.addEventListener("click", onPick);
+    return b;
+  }
+  function chip(label, selected, onPick) {
+    var b = el("button", "chip", label); b.type = "button";
+    b.setAttribute("aria-pressed", selected ? "true" : "false");
+    b.addEventListener("click", onPick);
+    return b;
+  }
+  function toggleRow(title, sub, checked, onChange) {
+    var l = el("label", "toggle-row");
+    var t = el("span"); t.appendChild(el("span", "t", title)); if (sub) t.appendChild(el("span", "s", sub));
+    var sw = el("span", "switch"); var i = el("input"); i.type = "checkbox"; i.checked = checked; i.setAttribute("role", "switch");
+    i.addEventListener("change", function () { onChange(i.checked); });
+    sw.appendChild(i); sw.appendChild(el("span", "track"));
+    l.appendChild(t); l.appendChild(sw);
+    return l;
+  }
+
+  // ---------- wizard ----------
+  var STEPS = ["welcome", "region", "culture", "faith", "style", "goal", "plan", "own"];
+
+  function stepHeader(body, title, lead) {
+    var n = state.step, total = STEPS.length - 1;
+    body.appendChild(el("p", "step-count", "Step " + n + " of " + total));
+    var p = el("div", "progress"); var s = el("span"); s.style.width = Math.round(n / total * 100) + "%"; p.appendChild(s);
+    body.appendChild(p);
+    body.appendChild(el("h1", null, title));
+    if (lead) body.appendChild(el("p", "lead", lead));
+  }
+
+  function renderWizard() {
+    var app = document.getElementById("app"); app.innerHTML = "";
+    var step = el("section", "step"); app.appendChild(step);
+    var key = STEPS[state.step];
+    var body = el("div", "step-body");
+    var canNext = true, nextLabel = "Continue";
+
+    if (key === "welcome") {
+      step.className = "step welcome";
+      step.appendChild(el("div", "plate-hero", "🍲"));
+      step.appendChild(el("h1", null, "What should we eat today?"));
+      step.appendChild(el("p", "lead", "Answer a few quick questions and get a meal timetable that fits where you live, your faith and how you like to eat."));
+      var perks = el("ul", "perks");
+      ["90+ African dishes", "Halal, fasting and vegan friendly", "Optional diet goals"].forEach(function (t) { perks.appendChild(el("li", null, t)); });
+      step.appendChild(perks);
+      nextLabel = "Get started";
+    }
+
+    if (key === "region") {
+      stepHeader(step, "Where do you live?", "We'll suggest dishes you can easily cook with local ingredients.");
+      var cards = el("div", "cards");
+      REGIONS.forEach(function (r) {
+        cards.appendChild(cardOption(r, draft.region === r[0], function () {
+          if (draft.region !== r[0]) draft.culture = "";
+          draft.region = r[0]; renderWizard();
+        }));
+      });
+      body.appendChild(cards);
+      canNext = !!draft.region;
+    }
+
+    if (key === "culture") {
+      stepHeader(step, "Any food tradition you grew up with?", "Dishes from your tradition will come up more often.");
+      var list = draft.region === "all" ? Object.keys(CULTURES).reduce(function (a, k) { return a.concat(CULTURES[k]); }, []) : CULTURES[draft.region];
+      var chips = el("div", "chips");
+      chips.appendChild(chip("No preference", !draft.culture, function () { draft.culture = ""; renderWizard(); }));
+      list.forEach(function (c) { chips.appendChild(chip(c[1], draft.culture === c[0], function () { draft.culture = c[0]; renderWizard(); })); });
+      body.appendChild(chips);
+      if (draft.region !== "all") body.appendChild(toggleRow("Mix in dishes from across Africa", "Try something new now and then", draft.mix, function (v) { draft.mix = v; }));
+    }
+
+    if (key === "faith") {
+      stepHeader(step, "Does your faith guide what you eat?", "We'll leave out foods you avoid and plan around fasting.");
+      var fc = el("div", "cards");
+      FAITHS.forEach(function (f) {
+        fc.appendChild(cardOption(f, draft.religion === f[0], function () {
+          draft.religion = f[0];
+          if (f[0] !== "muslim") draft.ramadan = false;
+          if (f[0] !== "christian") draft.fasting = "none";
+          if (f[0] === "hindu" && draft.style === "all") draft.style = "veg";
+          renderWizard();
+        }));
+      });
+      body.appendChild(fc);
+      if (draft.religion === "muslim") body.appendChild(toggleRow("Ramadan mode", "Plan suhoor and iftar instead of breakfast, lunch and dinner", draft.ramadan, function (v) { draft.ramadan = v; }));
+      if (draft.religion === "christian") {
+        body.appendChild(el("p", "subhead", "Fasting days"));
+        var fchips = el("div", "chips");
+        FASTS.forEach(function (x) { fchips.appendChild(chip(x[1], draft.fasting === x[0], function () { draft.fasting = x[0]; renderWizard(); })); });
+        body.appendChild(fchips);
+      }
+    }
+
+    if (key === "style") {
+      stepHeader(step, "How do you eat?", null);
+      var sc = el("div", "cards");
+      STYLES.forEach(function (s) { sc.appendChild(cardOption(s, draft.style === s[0], function () { draft.style = s[0]; renderWizard(); })); });
+      body.appendChild(sc);
+    }
+
+    if (key === "goal") {
+      stepHeader(step, "Do you have a diet goal?", "Optional. We'll favour dishes that suit it and add practical tips.");
+      var gc = el("div", "cards");
+      GOALS.forEach(function (g) { gc.appendChild(cardOption(g, draft.goal === g[0], function () { draft.goal = g[0]; renderWizard(); })); });
+      body.appendChild(gc);
+    }
+
+    if (key === "plan") {
+      stepHeader(step, "How long should your timetable be?", null);
+      var st = el("div", "stepper");
+      var minus = el("button", null, "−"); minus.type = "button"; minus.setAttribute("aria-label", "Fewer days"); minus.disabled = draft.days <= 1;
+      var out = el("output"); out.textContent = draft.days; out.appendChild(el("small", null, draft.days === 1 ? "day" : "days"));
+      var plus = el("button", null, "+"); plus.type = "button"; plus.setAttribute("aria-label", "More days"); plus.disabled = draft.days >= 28;
+      minus.addEventListener("click", function () { draft.days = Math.max(1, draft.days - 1); renderWizard(); });
+      plus.addEventListener("click", function () { draft.days = Math.min(28, draft.days + 1); renderWizard(); });
+      st.appendChild(minus); st.appendChild(out); st.appendChild(plus);
+      body.appendChild(st);
+      var quick = el("div", "chips"); quick.style.marginTop = "12px";
+      [[1, "1 day"], [3, "3 days"], [7, "1 week"], [14, "2 weeks"], [28, "4 weeks"]].forEach(function (q) {
+        quick.appendChild(chip(q[1], draft.days === q[0], function () { draft.days = q[0]; renderWizard(); }));
+      });
+      body.appendChild(quick);
+
+      body.appendChild(el("p", "subhead", "Starting"));
+      var date = el("input", "input"); date.type = "date"; date.value = draft.start; date.style.maxWidth = "240px";
+      date.setAttribute("aria-label", "Start date");
+      date.addEventListener("change", function () { draft.start = date.value || todayISO(); });
+      body.appendChild(date);
+
+      body.appendChild(el("p", "subhead", draft.ramadan ? "Extra meal (suhoor and iftar are always included)" : "Meals to plan"));
+      var mc = el("div", "chips");
+      MEALS.forEach(function (m) {
+        if (draft.ramadan && m[0] !== "snack") return;
+        var on = draft.meals.indexOf(m[0]) > -1;
+        mc.appendChild(chip(m[1], on, function () {
+          if (on) draft.meals = draft.meals.filter(function (x) { return x !== m[0]; }); else draft.meals.push(m[0]);
+          renderWizard();
+        }));
+      });
+      body.appendChild(mc);
+      canNext = draft.ramadan || draft.meals.length > 0;
+    }
+
+    if (key === "own") {
+      stepHeader(step, "Add your family favourites", "Optional. Dishes you add will show up in your timetable.");
+      var form = el("div", "own-form");
+      var name = el("input", "input"); name.type = "text"; name.placeholder = "e.g. Mum's vegetable soup"; name.maxLength = 60;
+      name.setAttribute("aria-label", "Dish name");
+      form.appendChild(name);
+      var slot = "d", meatFree = false;
+      var sch = el("div", "chips");
+      function drawSlots() {
+        sch.innerHTML = "";
+        [["b", "Breakfast"], ["l", "Lunch"], ["d", "Dinner"], ["s", "Snack"]].forEach(function (x) {
+          sch.appendChild(chip(x[1], slot === x[0], function () { slot = x[0]; drawSlots(); }));
+        });
+      }
+      drawSlots();
+      form.appendChild(sch);
+      form.appendChild(toggleRow("No meat or fish", "So it can appear on vegetarian and fasting days", false, function (v) { meatFree = v; }));
+      var add = el("button", "btn btn-secondary", "Add dish"); add.type = "button";
+      function doAdd() {
+        var v = name.value.trim(); if (!v) { name.focus(); return; }
+        state.own.push({ id: "own-" + Date.now(), n: v, c: "Your dish", cu: [], r: "own", m: slot, f: meatFree ? { v: true } : {}, b: "One of your household's favourites.", own: true, e: emojiFor(v) });
+        save(); renderWizard();
+        var i = document.querySelector(".own-form input[type=text]"); if (i) i.focus();
+      }
+      add.addEventListener("click", doAdd);
+      name.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); doAdd(); } });
+      form.appendChild(add);
+      body.appendChild(form);
+      if (state.own.length) {
+        var ul = el("ul", "own-list");
+        state.own.forEach(function (d, i) {
+          var li = el("li"); li.appendChild(el("span", "emo", d.e || "🥘"));
+          var g = el("div", "grow"); g.appendChild(el("div", "t", d.n)); g.appendChild(el("div", "s", SLOT_CODE[d.m] + (d.f.v ? ", no meat or fish" : "")));
+          li.appendChild(g);
+          var rm = el("button", "link-btn", "Remove"); rm.type = "button"; rm.setAttribute("aria-label", "Remove " + d.n);
+          rm.addEventListener("click", function () { state.own.splice(i, 1); save(); renderWizard(); });
+          li.appendChild(rm); ul.appendChild(li);
+        });
+        body.appendChild(ul);
+      }
+      nextLabel = "Build my timetable";
+    }
+
+    step.appendChild(body);
+
+    // bottom bar
+    var bar = document.getElementById("bottomInner"); bar.innerHTML = "";
+    if (state.step > 0) {
+      var back = el("button", "btn btn-secondary", "Back"); back.type = "button";
+      back.addEventListener("click", function () { state.step--; renderWizard(); window.scrollTo(0, 0); });
+      bar.appendChild(back);
+    } else if (state.plan) {
+      var toPlan = el("button", "btn btn-secondary", "My timetable"); toPlan.type = "button";
+      toPlan.addEventListener("click", function () { state.view = "plan"; render(); });
+      bar.appendChild(toPlan);
+    }
+    var next = el("button", "btn btn-primary", nextLabel); next.type = "button"; next.disabled = !canNext;
+    next.addEventListener("click", function () {
+      if (key === "own") { finish(); return; }
+      state.step++; renderWizard(); window.scrollTo(0, 0);
+    });
+    bar.appendChild(next);
+    document.getElementById("bottomBar").classList.remove("hidden");
+    document.getElementById("editBtn").classList.add("hidden");
+  }
+
+  function finish() {
+    state.settings = JSON.parse(JSON.stringify(draft));
+    state.plan = generate(state.settings);
+    state.view = "plan"; state.day = 0;
+    save(); render(); window.scrollTo(0, 0);
+  }
+
+  // ---------- planning ----------
+  function allDishes() { return DISHES.concat(state.own); }
+  function findDish(id) { var all = allDishes(); for (var i = 0; i < all.length; i++) if (all[i].id === id) return all[i]; return null; }
+
+  function dayRules(s, date) {
+    var style = s.style;
+    if (s.religion === "hindu" && style === "all") style = "veg";
+    var dow = date.getDay(), note = "";
+    if (s.fasting === "lent" && style === "all") { style = "veg"; note = "Lent: meat-free"; }
+    if (s.fasting === "fri" && dow === 5 && style === "all") { style = "veg"; note = "Meat-free Friday"; }
+    if (s.fasting === "orthodox" && (dow === 3 || dow === 5)) { style = "vegan"; note = "Fast day: vegan"; }
+    return { style: style, noPork: s.religion === "muslim" || s.religion === "jewish", noShellfish: s.religion === "jewish", note: note };
+  }
+  function allowed(d, r) {
+    if (r.style === "veg" && !d.f.v) return false;
+    if (r.style === "vegan" && !d.f.vg) return false;
+    if (r.noPork && d.f.pk) return false;
+    if (r.noShellfish && d.f.sf) return false;
+    return true;
+  }
+  function fitsSlot(d, slot) {
+    var m = d.m;
+    switch (slot) {
+      case "breakfast": return m.indexOf("b") > -1;
+      case "lunch": return m.indexOf("l") > -1;
+      case "dinner": return m.indexOf("d") > -1;
+      case "snack": return m.indexOf("s") > -1;
+      case "suhoor": return m.indexOf("b") > -1 || (m.indexOf("l") > -1 && (d.f.gi || d.f.hp) && !d.own);
+      case "iftar": return m.indexOf("d") > -1 || m.indexOf("l") > -1;
+    }
+    return false;
+  }
+  function weight(d, slot, s) {
+    var w;
+    if (d.own) w = 3;
+    else if (s.region === "all" || d.r === "*" || d.r === s.region) w = d.r === "*" ? 1 : 2;
+    else if (s.mix) w = 0.35;
+    else return 0;
+    if (!d.own && s.culture && d.cu.indexOf(s.culture) > -1) w *= 3;
+    if (s.goal === "loss") { if (d.f.lt) w *= 3; if (d.f.gi) w *= 1.5; if (d.f.tr) w *= 0.15; }
+    if (s.goal === "sugar") { if (d.f.gi) w *= 3.5; if (d.f.tr) return 0; }
+    if (s.goal === "protein" && d.f.hp) w *= 3;
+    if (slot === "iftar" && d.f.sp) w *= 3;
+    if (slot === "suhoor" && (d.f.hp || d.f.gi)) w *= 2;
+    return w;
+  }
+  function pool(slot, s, rules) {
+    return allDishes().filter(function (d) { return fitsSlot(d, slot) && allowed(d, rules); })
+      .map(function (d) { return { d: d, w: weight(d, slot, s) }; }).filter(function (x) { return x.w > 0; });
+  }
+  function pick(list, avoid) {
+    var o = list.filter(function (x) { return avoid.indexOf(x.d.id) === -1; });
+    if (!o.length) o = list;
+    if (!o.length) return null;
+    var total = o.reduce(function (a, x) { return a + x.w; }, 0), r = Math.random() * total;
+    for (var i = 0; i < o.length; i++) { r -= o[i].w; if (r <= 0) return o[i].d; }
+    return o[o.length - 1].d;
+  }
+  function slotsFor(s) {
+    if (s.ramadan) return ["suhoor", "iftar"].concat(s.meals.indexOf("snack") > -1 ? ["snack"] : []);
+    return ["breakfast", "lunch", "dinner", "snack"].filter(function (m) { return s.meals.indexOf(m) > -1; });
+  }
+  function dateFor(s, i) { var p = s.start.split("-").map(Number); return new Date(p[0], p[1] - 1, p[2] + i); }
+  function recentIds(plan, di, slot, span) {
+    var ids = [];
+    for (var i = Math.max(0, di - span); i < di; i++) if (plan[i] && plan[i].meals[slot]) ids.push(plan[i].meals[slot]);
+    return ids;
+  }
+  function generate(s) {
+    var slots = slotsFor(s), plan = [];
+    for (var i = 0; i < s.days; i++) {
+      var rules = dayRules(s, dateFor(s, i)), day = { note: rules.note, meals: {} }, used = [];
+      plan.push(day);
+      slots.forEach(function (slot) {
+        var list = pool(slot, s, rules), span = Math.min(4, Math.max(0, list.length - 2));
+        var d = pick(list, used.concat(recentIds(plan, i, slot, span)));
+        day.meals[slot] = d ? d.id : null; if (d) used.push(d.id);
+      });
+    }
+    return plan;
+  }
+  function swap(di, slot) {
+    var s = state.settings, day = state.plan[di], list = pool(slot, s, dayRules(s, dateFor(s, di)));
+    var same = Object.keys(day.meals).map(function (k) { return day.meals[k]; });
+    var near = recentIds(state.plan, di, slot, 2).concat(state.plan[di + 1] ? [state.plan[di + 1].meals[slot]] : []);
+    var d = pick(list, same.concat(near));
+    if (d && d.id === day.meals[slot] && list.length > 1) d = pick(list, [day.meals[slot]]);
+    day.meals[slot] = d ? d.id : null;
+    save(); renderPlan();
+    var card = document.querySelector('.meal[data-slot="' + slot + '"]');
+    if (card) { card.classList.add("flash"); setTimeout(function () { card.classList.remove("flash"); }, 600); var b = card.querySelector(".swap"); if (b) b.focus(); }
+  }
+
+  function notesFor(s) {
+    var items = [];
+    if (s.goal === "loss") items.push(
+      "Fill half your plate with vegetables or soup greens, a quarter with protein, and a quarter with starch.",
+      "Keep swallows (eba, pounded yam, fufu, ugali) to about the size of your fist.",
+      "Choose grilled, boiled or steamed over fried, and go easy on oil in stews.",
+      "Drink water before meals and swap sweet drinks for zobo or tea without sugar.");
+    if (s.goal === "sugar") items.push(
+      "Pair every starch with protein and vegetables so it digests more slowly.",
+      "Beans, unripe plantain, fonio, millet and sorghum are gentler on blood sugar than white rice, white bread or ripe plantain.",
+      "Keep portions of swallow and rice modest, and skip sugary drinks and fried snacks.",
+      "If you have diabetes, follow the plan your doctor or dietitian gave you.");
+    if (s.goal === "protein") items.push(
+      "Include beans, lentils, eggs, fish, chicken or groundnuts at every meal.",
+      "Spread protein across the day rather than saving it all for dinner.",
+      "Snacks like boiled eggs, groundnuts and moi moi add up quickly.");
+    if (s.religion === "muslim") items.push(s.ramadan ? "Break the fast with dates and water before your iftar meal, and choose slow-release foods at suhoor to last the day." : "Buy meat from halal sources. Pork dishes are left out of your timetable.");
+    if (s.religion === "jewish") items.push("Pork and shellfish dishes are left out. Use kosher meat, and keep meat and dairy apart where your practice requires it.");
+    if (s.religion === "hindu") items.push("Your timetable is vegetarian. Choose vegan if you also avoid eggs and dairy.");
+    if (s.fasting === "orthodox") items.push("Wednesdays and Fridays are planned as vegan fast days.");
+    return items;
+  }
+
+  function prefSummary(s) {
+    var out = [];
+    var r = REGIONS.filter(function (x) { return x[0] === s.region; })[0]; if (r) out.push(r[1]);
+    if (s.culture) Object.keys(CULTURES).forEach(function (k) { CULTURES[k].forEach(function (c) { if (c[0] === s.culture) out.push(c[1]); }); });
+    var f = FAITHS.filter(function (x) { return x[0] === s.religion; })[0]; if (f && s.religion !== "none") out.push(f[1] + (s.ramadan ? ", Ramadan" : ""));
+    if (s.fasting !== "none") out.push(FASTS.filter(function (x) { return x[0] === s.fasting; })[0][1]);
+    if (s.style !== "all") out.push(STYLES.filter(function (x) { return x[0] === s.style; })[0][1]);
+    if (s.goal !== "none") out.push(GOALS.filter(function (x) { return x[0] === s.goal; })[0][1]);
+    return out;
+  }
+
+  // ---------- plan view ----------
+  var SWAP_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3l4 4-4 4"/><path d="M21 7H9a5 5 0 0 0-5 5"/><path d="M7 21l-4-4 4-4"/><path d="M3 17h12a5 5 0 0 0 5-5"/></svg>';
+
+  function renderPlan() {
+    var s = state.settings, app = document.getElementById("app"); app.innerHTML = "";
+    if (state.day >= state.plan.length) state.day = 0;
+
+    var top = el("div", "plan-top"), tl = el("div");
+    tl.appendChild(el("h1", null, s.days === 1 ? "Your meals for the day" : "Your " + s.days + "-day timetable"));
+    var f = { day: "numeric", month: "short" };
+    tl.appendChild(el("p", null, s.days === 1 ? dateFor(s, 0).toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" }) : dateFor(s, 0).toLocaleDateString("en-GB", f) + " to " + dateFor(s, s.days - 1).toLocaleDateString("en-GB", f)));
+    top.appendChild(tl);
+    app.appendChild(top);
+    var ps = el("div", "pref-summary"); prefSummary(s).forEach(function (t) { ps.appendChild(el("span", null, t)); });
+    if (ps.childNodes.length) app.appendChild(ps);
+
+    if (s.days > 1) {
+      var days = el("div", "days"); days.setAttribute("role", "group"); days.setAttribute("aria-label", "Choose a day");
+      state.plan.forEach(function (d, i) {
+        var dt = dateFor(s, i), b = el("button", "day-pill"); b.type = "button";
+        b.setAttribute("aria-pressed", i === state.day ? "true" : "false");
+        b.setAttribute("aria-label", dt.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" }) + (d.note ? ", " + d.note : ""));
+        b.appendChild(el("span", "dw", dt.toLocaleDateString("en-GB", { weekday: "short" })));
+        b.appendChild(el("span", "dn", String(dt.getDate())));
+        if (d.note) b.appendChild(el("span", "dot"));
+        b.addEventListener("click", function () { state.day = i; save(); renderPlan(); var p = document.querySelector('.day-pill[aria-pressed="true"]'); if (p) p.focus(); });
+        days.appendChild(b);
+      });
+      app.appendChild(days);
+      setTimeout(function () { var p = days.querySelector('[aria-pressed="true"]'); if (p) days.scrollLeft = p.offsetLeft - 20; }, 0);
+    }
+
+    var day = state.plan[state.day], dt = dateFor(s, state.day);
+    var th = el("div", "day-title");
+    th.appendChild(el("h2", null, s.days > 1 ? dt.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" }) : "Today's plates"));
+    if (day.note) th.appendChild(el("span", "badge", day.note));
+    app.appendChild(th);
+
+    var list = el("div", "meal-list");
+    Object.keys(day.meals).forEach(function (slot) {
+      var d = day.meals[slot] ? findDish(day.meals[slot]) : null;
+      var card = el("article", "meal" + (d ? "" : " empty")); card.setAttribute("data-slot", slot);
+      card.appendChild(el("div", "plate", d ? (d.e || "🥘") : "🍽️"));
+      var info = el("div", "info");
+      info.appendChild(el("div", "slot", SLOT_LABEL[slot]));
+      if (!d) {
+        info.appendChild(el("h3", "name", "No dish fits all your choices"));
+        info.appendChild(el("p", "why", "Edit preferences and turn on \"Mix in dishes from across Africa\", or add one of your own dishes."));
+      } else {
+        if (slot === "iftar") info.appendChild(el("p", "pre", "Open with dates and water, then"));
+        info.appendChild(el("h3", "name", d.n));
+        info.appendChild(el("p", "origin", d.c));
+        info.appendChild(el("p", "why", d.b));
+        var tags = el("div", "tags");
+        if (d.own) tags.appendChild(el("span", "tag own", "Your dish"));
+        ["vg", "v", "hp", "gi", "lt"].forEach(function (k) { if (d.f[k] && !(k === "v" && d.f.vg)) tags.appendChild(el("span", "tag", TAG_LABEL[k])); });
+        if (tags.childNodes.length) info.appendChild(tags);
+      }
+      card.appendChild(info);
+      var sw = el("button", "swap"); sw.type = "button"; sw.innerHTML = SWAP_ICON;
+      sw.setAttribute("aria-label", "Swap " + SLOT_LABEL[slot].toLowerCase()); sw.title = "Swap for another dish";
+      sw.addEventListener("click", function () { swap(state.day, slot); });
+      card.appendChild(sw);
+      list.appendChild(card);
+    });
+    app.appendChild(list);
+
+    var notes = notesFor(s);
+    if (notes.length) {
+      var det = el("details", "tips"); if (s.goal !== "none") det.open = true;
+      det.appendChild(el("summary", null, s.goal !== "none" ? "Diet tips for your goal" : "Good to know"));
+      var ul = el("ul"); notes.forEach(function (t) { ul.appendChild(el("li", null, t)); }); det.appendChild(ul);
+      app.appendChild(det);
+    }
+    app.appendChild(el("p", "fine", "Diet tips are general guidance, not medical advice."));
+
+    var bar = document.getElementById("bottomInner"); bar.innerHTML = "";
+    var pr = el("button", "btn btn-secondary", "Print"); pr.type = "button";
+    pr.addEventListener("click", function () { buildPrint(); window.print(); });
+    var again = el("button", "btn btn-primary", "New timetable"); again.type = "button";
+    again.addEventListener("click", function () { state.plan = generate(state.settings); save(); renderPlan(); });
+    bar.appendChild(pr); bar.appendChild(again);
+    document.getElementById("bottomBar").classList.remove("hidden");
+    document.getElementById("editBtn").classList.remove("hidden");
+  }
+
+  function buildPrint() {
+    var s = state.settings, box = document.getElementById("printAll"); box.innerHTML = "";
+    box.appendChild(el("h1", null, "Today's Plate: " + (s.days === 1 ? "meal plan" : s.days + "-day meal timetable")));
+    box.appendChild(el("p", null, prefSummary(s).join(", ")));
+    var slots = slotsFor(s), t = el("table"), hr = el("tr");
+    hr.appendChild(el("th", null, "Day")); slots.forEach(function (x) { hr.appendChild(el("th", null, SLOT_LABEL[x])); });
+    t.appendChild(hr);
+    state.plan.forEach(function (d, i) {
+      var tr = el("tr");
+      tr.appendChild(el("td", null, dateFor(s, i).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" }) + (d.note ? " (" + d.note + ")" : "")));
+      slots.forEach(function (x) { var dish = d.meals[x] ? findDish(d.meals[x]) : null; tr.appendChild(el("td", null, dish ? dish.n : "")); });
+      t.appendChild(tr);
+    });
+    box.appendChild(t);
+  }
+
+  document.getElementById("editBtn").addEventListener("click", function () {
+    draft = JSON.parse(JSON.stringify(state.settings || defaults()));
+    state.view = "wizard"; state.step = 1; render(); window.scrollTo(0, 0);
+  });
+
+  function render() { if (state.view === "plan" && state.plan && state.settings) renderPlan(); else renderWizard(); }
+
+  // ---------- start ----------
+  var saved = load();
+  if (saved) {
+    state.theme = saved.theme || "system";
+    state.own = Array.isArray(saved.own) ? saved.own : [];
+    state.own.forEach(function (d) { if (!d.e) d.e = emojiFor(d.n); });
+    if (saved.settings && Array.isArray(saved.plan)) { state.settings = saved.settings; state.plan = saved.plan; state.view = "plan"; state.day = saved.day || 0; draft = JSON.parse(JSON.stringify(saved.settings)); }
+  }
+  applyTheme();
+  render();
+})();
+</script>
+</body>
+</html>
