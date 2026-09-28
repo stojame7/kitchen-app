@@ -13,6 +13,7 @@ MenuWeave builds personal meal timetables for African kitchens, shaped by where 
 |---|---|
 | `index.html` | The whole app (HTML, CSS and JavaScript in one file) |
 | `docs.html` | Documentation: features, brand, setup, data model, roadmap |
+| `privacy.html` | Privacy policy |
 | `supabase-setup.sql` | Creates the user and saved-timetable tables in Supabase |
 
 ## Quick start
