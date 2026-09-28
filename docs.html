@@ -146,6 +146,7 @@ td:first-child { font-weight: 700; white-space: nowrap; }
     <a href="#data">Data model</a>
     <a href="#privacy">Privacy</a>
     <a href="#roadmap">Roadmap</a>
+    <a href="privacy.html">Privacy policy ↗</a>
     <div class="status">
       <p class="status-title">Status</p>
       <p><span class="dot"></span>Live on GitHub Pages</p>
@@ -267,7 +268,7 @@ REQUIRE_ACCOUNT: true,</code></pre>
         <li>After 1–2 minutes, open <a href="https://stojame7.github.io/kitchen-app/">stojame7.github.io/kitchen-app</a> and press <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>R</kbd> to skip the cached copy.</li>
         <li>For a release users should hear about, raise <code>APP_VERSION</code> in <code>CONFIG</code> and add an entry at the top of <code>WHATS_NEW</code>, just below it.</li>
       </ol>
-      <p>The repository holds <code>index.html</code> (the app), <code>docs.html</code> (this page), <code>supabase-setup.sql</code> and <code>README.md</code>. This page is available at <code>/kitchen-app/docs.html</code>.</p>
+      <p>The repository holds <code>index.html</code> (the app), <code>docs.html</code> (this page), <code>privacy.html</code>, <code>supabase-setup.sql</code> and <code>README.md</code>. This page is available at <code>/kitchen-app/docs.html</code>.</p>
     </section>
 
     <section id="dishes">
@@ -328,14 +329,15 @@ REQUIRE_ACCOUNT: true,</code></pre>
     <section id="privacy">
       <h2>Privacy</h2>
       <p>MenuWeave stores a user's name, email, country, meal preferences and timetable, so it can save plans and send updates they asked for. Update emails are opt-in and unticked by default, and users can switch them off in the account menu. Row-level security means each user can only access their own records.</p>
-      <p class="note">Because MenuWeave collects personal data from people in Nigeria, the Nigeria Data Protection Act 2023 applies. Before a public launch, add a short privacy policy page (what is collected, why, how long it's kept and how to ask for deletion) and link to it from the sign-up screen.</p>
+      <p>The full policy is in <a href="privacy.html">privacy.html</a>, written with the Nigeria Data Protection Act 2023 in mind, and linked from the welcome screen, the sign-up form and the account menu. Users can delete their account and all their data themselves from the account menu.</p>
+      <p class="note">Before launch, fill in the highlighted parts of <code>privacy.html</code> (contact email, Supabase region, email tool). It's a solid starting point, but it isn't legal advice; have a lawyer review it if MenuWeave grows or starts charging.</p>
     </section>
 
     <section id="roadmap">
       <h2>Roadmap</h2>
       <div class="phases">
-        <article class="phase done"><p class="when">Live · v1.1.0</p><h3>Foundations</h3><ul><li>Step-by-step setup and timetable generator</li><li>Faith, fasting and diet rules</li><li>Accounts and saved timetables</li><li>PDF, Excel and JPEG downloads</li></ul></article>
-        <article class="phase"><p class="when">Next · Q4 2026</p><h3>Everyday kitchen</h3><ul><li>Grocery list built from the timetable</li><li>Household size and cooking time per meal</li><li>Shareable timetable link</li><li>Privacy policy page</li></ul></article>
+        <article class="phase done"><p class="when">Live · v1.1.0</p><h3>Foundations</h3><ul><li>Step-by-step setup and timetable generator</li><li>Faith, fasting and diet rules</li><li>Accounts and saved timetables</li><li>PDF, Excel and JPEG downloads</li><li>Privacy policy and self-service account deletion</li></ul></article>
+        <article class="phase"><p class="when">Next · Q4 2026</p><h3>Everyday kitchen</h3><ul><li>Grocery list built from the timetable</li><li>Household size and cooking time per meal</li><li>Shareable timetable link</li></ul></article>
         <article class="phase"><p class="when">Q1 2027</p><h3>Culture calendar</h3><ul><li>Automatic Ramadan, Lent and festival dates</li><li>More dishes and traditions</li><li>Local ingredient names (e.g. ugwu, pumpkin leaves)</li></ul></article>
         <article class="phase"><p class="when">Later</p><h3>Community</h3><ul><li>Recipes and cooking steps</li><li>Family recipes shared with credit</li><li>Languages: Yoruba, Hausa, Igbo, Swahili, French</li></ul></article>
       </div>
@@ -346,7 +348,7 @@ REQUIRE_ACCOUNT: true,</code></pre>
 
 <footer class="foot">
   <p><strong>MenuWeave</strong> · Your culture. Your taste. Your plan.</p>
-  <p class="muted">Documentation for version 1.1.0 · © 2026 MenuWeave. All rights reserved.</p>
+  <p class="muted">Documentation for version 1.1.0 · <a href="privacy.html">Privacy policy</a> · © 2026 MenuWeave. All rights reserved.</p>
 </footer>
 <script>
 (function () {
